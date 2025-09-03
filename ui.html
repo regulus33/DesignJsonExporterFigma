@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Component Exporter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #ffffff;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 360px;
+        }
+
+        h1 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            color: #1e1e1e;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 12px;
+            background: #ffffff;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .button {
+            width: 100%;
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background: #2563eb;
+        }
+
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .progress.visible {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .error.visible {
+            display: block;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .success.visible {
+            display: block;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #374151;
+        }
+
+        .info-text {
+            font-size: 10px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .download-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .download-section.visible {
+            display: block;
+        }
+
+        .download-button {
+            width: 100%;
+            padding: 8px 12px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .download-button:hover {
+            background: #047857;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🚀 Component to JUCE Exporter</h1>
+
+    <div class="info-box">
+        <div class="info-title">How it works:</div>
+        <div class="info-text">
+            Select components/groups in your design, choose the depth level, and export them as individual PNG images with a structured JSON file for JUCE C++ development.
+        </div>
+    </div>
+
+    <form id="exportForm">
+        <div class="form-group">
+            <label for="depth">Layer Tree Depth:</label>
+            <div class="description">
+                Depth 0 = selected items, Depth 1 = their children, Depth 2 = grandchildren, etc.
+            </div>
+            <input type="number" id="depth" name="depth" value="0" min="0" max="10" step="1">
+        </div>
+
+        <button type="submit" class="button" id="exportButton">
+            Export Components
+        </button>
+    </form>
+
+    <div class="progress" id="progressContainer">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Preparing export...</div>
+    </div>
+
+    <div class="download-section" id="downloadSection">
+        <button class="download-button" id="downloadJson">📄 Download components.json</button>
+        <button class="download-button" id="downloadImages">🖼️ Download All Images (ZIP)</button>
+    </div>
+
+    <div class="error" id="errorContainer"></div>
+    <div class="success" id="successContainer"></div>
+</div>
+
+<script>
+    console.log('🚀 UI Script loaded!');
+
+    let exportedData = null;
+    let exportedImages = null;
+
+    // Test if DOM is ready
+    if (document.readyState === 'loading') {
+        console.log('⏳ DOM is still loading...');
+        document.addEventListener('DOMContentLoaded', initializeUI);
+    } else {
+        console.log('✅ DOM is ready, initializing UI');
+        initializeUI();
+    }
+
+    function initializeUI() {
+        console.log('🎯 Initializing UI components...');
+
+        // Check if all required elements exist
+        const requiredElements = ['exportForm', 'depth', 'exportButton', 'progressContainer', 'downloadJson', 'downloadImages'];
+        requiredElements.forEach(id => {
+            const element = document.getElementById(id);
+            console.log(`Element ${id}:`, element ? '✅ Found' : '❌ Missing');
+        });
+
+        // Handle form submission
+        const exportForm = document.getElementById('exportForm');
+        if (exportForm) {
+            console.log('📝 Setting up form event listener');
+            exportForm.addEventListener('submit', handleFormSubmit);
+        }
+
+        // Handle download buttons
+        const downloadJsonBtn = document.getElementById('downloadJson');
+        if (downloadJsonBtn) {
+            console.log('📂 Setting up JSON download button');
+            downloadJsonBtn.addEventListener('click', handleJsonDownload);
+        }
+
+        const downloadImagesBtn = document.getElementById('downloadImages');
+        if (downloadImagesBtn) {
+            console.log('🖼️ Setting up images download button');
+            downloadImagesBtn.addEventListener('click', handleImagesDownload);
+        }
+
+        // Listen for messages from the plugin
+        console.log('👂 Setting up message listener');
+        window.addEventListener('message', handlePluginMessage);
+
+        console.log('🎉 UI initialization complete!');
+
+        // Run a quick test
+        setTimeout(testUI, 1000);
+    }
+
+    function handleFormSubmit(e) {
+        console.log('📤 Form submit event triggered!');
+        e.preventDefault();
+
+        const depthInput = document.getElementById('depth');
+        console.log('📊 Depth input element:', depthInput);
+
+        if (!depthInput) {
+            console.error('❌ Could not find depth input element!');
+            return;
+        }
+
+        const depth = parseInt(depthInput.value);
+        console.log(`📊 Depth value parsed: ${depth} (type: ${typeof depth})`);
+
+        if (isNaN(depth)) {
+            console.error('❌ Depth is not a valid number!');
+            showError('Please enter a valid number for depth');
+            return;
+        }
+
+        // Reset UI state
+        console.log('🧹 Resetting UI state...');
+        showProgress(false);
+        showError('');
+        showSuccess('');
+        showDownloadSection(false);
+
+        // Create message object
+        const message = {
+            pluginMessage: {
+                type: 'export',
+                depth: depth
+            }
+        };
+
+        console.log('📡 Sending message to plugin:', message);
+        console.log('📡 Message stringified:', JSON.stringify(message));
+        console.log('📡 Parent object:', parent);
+
+        // Send export message to plugin
+        try {
+            parent.postMessage(message, '*');
+            console.log('✅ Message sent successfully!');
+        } catch (error) {
+            console.error('❌ Failed to send message:', error);
+            showError('Failed to communicate with plugin: ' + error.message);
+            return;
+        }
+
+        console.log('📊 Showing progress UI...');
+        showProgress(true);
+        updateProgress(0, 1, 'Starting export...');
+    }
+
+    function handleJsonDownload() {
+        console.log('📄 JSON download button clicked');
+        if (exportedData) {
+            console.log('📄 Exported data available:', exportedData);
+            downloadJson(exportedData);
+        } else {
+            console.log('❌ No exported data available for JSON download');
+            showError('No data available to download. Please export components first.');
+        }
+    }
+
+    function handleImagesDownload() {
+        console.log('🖼️ Images download button clicked');
+        if (exportedImages) {
+            console.log('🖼️ Exported images available, count:', exportedImages.length);
+            downloadImagesAsZip(exportedImages);
+        } else {
+            console.log('❌ No exported images available');
+            showError('No images available to download. Please export components first.');
+        }
+    }
+
+    function handlePluginMessage(event) {
+        console.log('📨 Message event received!');
+        console.log('📨 Event object:', event);
+        console.log('📨 Event.data:', event.data);
+        console.log('📨 Event.origin:', event.origin);
+        console.log('📨 Event.source:', event.source);
+
+        if (!event.data) {
+            console.log('⚠️ Event has no data');
+            return;
+        }
+
+        if (!event.data.pluginMessage) {
+            console.log('⚠️ Event.data has no pluginMessage property');
+            console.log('⚠️ Available properties in event.data:', Object.keys(event.data));
+            return;
+        }
+
+        const msg = event.data.pluginMessage;
+        console.log('📨 Plugin message extracted:', msg);
+        console.log('📨 Message type:', msg.type);
+
+        switch (msg.type) {
+            case 'progress':
+                console.log(`📈 Progress update: ${msg.current}/${msg.total} - ${msg.componentName}`);
+                updateProgress(msg.current, msg.total, `Exporting: ${msg.componentName}`);
+                break;
+
+            case 'complete':
+                console.log('🎉 Export completed!');
+                console.log('📊 Data received:', msg.data);
+                console.log('🖼️ Image files received:', msg.imageFiles ? msg.imageFiles.length : 0);
+
+                exportedData = msg.data;
+                exportedImages = msg.imageFiles;
+                showProgress(false);
+                showSuccess(`Successfully exported ${exportedData.length} components!`);
+                showDownloadSection(true);
+                break;
+
+            case 'error':
+                console.log('❌ Export error received:', msg.message);
+                showProgress(false);
+                showError(msg.message);
+                break;
+
+            default:
+                console.log('❓ Unknown message type received:', msg.type);
+                console.log('❓ Full message:', msg);
+                break;
+        }
+    }
+
+    function showProgress(visible) {
+        console.log(`📊 Setting progress visibility: ${visible}`);
+        const progressContainer = document.getElementById('progressContainer');
+        const exportButton = document.getElementById('exportButton');
+
+        if (progressContainer) {
+            progressContainer.classList.toggle('visible', visible);
+            console.log('📊 Progress container class updated');
+        } else {
+            console.log('❌ Progress container not found!');
+        }
+
+        if (exportButton) {
+            exportButton.disabled = visible;
+            console.log(`📊 Export button disabled: ${visible}`);
+        } else {
+            console.log('❌ Export button not found!');
+        }
+    }
+
+    function updateProgress(current, total, text) {
+        console.log(`📈 Updating progress: ${current}/${total} - ${text}`);
+        const percentage = (current / total) * 100;
+        console.log(`📈 Calculated percentage: ${percentage}%`);
+
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        if (progressFill) {
+            progressFill.style.width = percentage + '%';
+            console.log(`📈 Progress bar updated to ${percentage}%`);
+        } else {
+            console.log('❌ Progress fill element not found!');
+        }
+
+        if (progressText) {
+            progressText.textContent = text;
+            console.log(`📈 Progress text updated: ${text}`);
+        } else {
+            console.log('❌ Progress text element not found!');
+        }
+    }
+
+    function showError(message) {
+        console.log(`❌ Setting error message: "${message}"`);
+        const errorContainer = document.getElementById('errorContainer');
+        if (errorContainer) {
+            if (message) {
+                errorContainer.textContent = message;
+                errorContainer.classList.add('visible');
+                console.log('❌ Error container made visible');
+            } else {
+                errorContainer.classList.remove('visible');
+                console.log('❌ Error container hidden');
+            }
+        } else {
+            console.log('❌ Error container element not found!');
+        }
+    }
+
+    function showSuccess(message) {
+        console.log(`✅ Setting success message: "${message}"`);
+        const successContainer = document.getElementById('successContainer');
+        if (successContainer) {
+            if (message) {
+                successContainer.textContent = message;
+                successContainer.classList.add('visible');
+                console.log('✅ Success container made visible');
+            } else {
+                successContainer.classList.remove('visible');
+                console.log('✅ Success container hidden');
+            }
+        } else {
+            console.log('❌ Success container element not found!');
+        }
+    }
+
+    function showDownloadSection(visible) {
+        console.log(`📂 Setting download section visibility: ${visible}`);
+        const downloadSection = document.getElementById('downloadSection');
+        if (downloadSection) {
+            downloadSection.classList.toggle('visible', visible);
+            console.log('📂 Download section visibility updated');
+        } else {
+            console.log('❌ Download section element not found!');
+        }
+    }
+
+    function downloadJson(data) {
+        console.log('📄 Starting JSON download process...');
+        try {
+            const jsonString = JSON.stringify(data, null, 2);
+            console.log('📄 JSON string created, length:', jsonString.length);
+            console.log('📄 JSON preview (first 200 chars):', jsonString.substring(0, 200));
+
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            console.log('📄 Blob created, size:', blob.size);
+
+            const url = URL.createObjectURL(blob);
+            console.log('📄 Object URL created:', url);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'components.json';
+            document.body.appendChild(a);
+            console.log('📄 Download anchor created and added to DOM');
+
+            a.click();
+            console.log('📄 Download click triggered');
+
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            console.log('📄 JSON download cleanup completed');
+        } catch (error) {
+            console.error('❌ JSON download failed:', error);
+            showError('Failed to download JSON: ' + error.message);
+        }
+    }
+
+    async function downloadImagesAsZip(imageFiles) {
+        console.log('🖼️ Starting images download process...');
+        console.log('🖼️ Number of image files:', imageFiles.length);
+
+        try {
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                console.log(`🖼️ Processing image ${i + 1}/${imageFiles.length}: ${file.name}`);
+                console.log(`🖼️ Image data size: ${file.data.length} bytes`);
+
+                const blob = new Blob([file.data], { type: 'image/png' });
+                console.log(`🖼️ Blob created for ${file.name}, size: ${blob.size}`);
+
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                document.body.appendChild(a);
+
+                console.log(`🖼️ Triggering download for ${file.name}`);
+                a.click();
+
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                // Small delay between downloads to avoid browser blocking
+                if (i < imageFiles.length - 1) {
+                    console.log('⏳ Waiting before next download...');
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            console.log('✅ All images downloaded successfully');
+            showSuccess(`Downloaded ${imageFiles.length} component images!`);
+        } catch (error) {
+            console.error('❌ Images download failed:', error);
+            showError('Failed to download images: ' + error.message);
+        }
+    }
+
+    // Test function to verify UI is working
+    function testUI() {
+        console.log('🧪 Running UI test...');
+        showError('UI Test: This error message should appear for 2 seconds');
+        setTimeout(() => {
+            showError('');
+            showSuccess('UI Test: Success! The UI is working correctly.');
+            setTimeout(() => {
+                showSuccess('');
+            }, 3000);
+        }, 2000);
+    }
+
+    // Global function for manual testing
+    window.testMessage = function() {
+        console.log('🧪 Manual test: Sending test message to plugin...');
+        parent.postMessage({
+            pluginMessage: {
+                type: 'test',
+                data: 'Hello from UI!'
+            }
+        }, '*');
+    };
+
+    console.log('🎯 Script setup complete. You can call window.testMessage() to test communication.');
+</script>
+</body>
+</html>

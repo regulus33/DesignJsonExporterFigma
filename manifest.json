@@ -1,0 +1,21 @@
+{
+  "name": "Component to JUCE Exporter",
+  "id": "1545148450982178489",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "documentAccess": "dynamic-page",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  },
+  "permissions": [],
+  "parameters": [
+    {
+      "name": "Depth",
+      "key": "depth",
+      "description": "Layer tree depth to export (0 = selected items, 1 = children, etc.)"
+    }
+  ]
+}
+
