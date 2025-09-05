@@ -1,5 +1,7 @@
+
+<img src="splash.png" alt="drawing" width="100%"/>
+
 # Design JSON Exporter
-![logothing.png](logothing.png)
 A Figma plugin that exports UI components as structured JSON with component images, designed to help AI agents better understand and implement your designs.
 
 ## Overview
